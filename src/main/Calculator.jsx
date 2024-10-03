@@ -14,9 +14,9 @@ const initialState = {
    /*
     inicialmente irá digitar o primeiro valor e escolher alguma operação,
     após escolher alguma operação o valor é armazenado na primeira posição do array
-    e o proximo valor que será escolhido será armazendo
+    e o proximo valor que será escolhido será armazendo na outra posição do array;
   */
-    current: 0 // vai dizer qual valor está manipulando, se é o indice 0 do array ou 1;
+  current: 0 // vai dizer qual valor está manipulando, se é o indice 0 do array ou 1;
 };
 export default class Calculator extends Component {
 
@@ -33,7 +33,33 @@ export default class Calculator extends Component {
     this.setState({...initialState}) //Se o clear memory for invocado ele irá voltar para o estado inicial;
   }
   setOperation(operation) {
-    console.log(operation)
+    if (this.state.current === 0) {
+      this.setState({
+        operation,
+        current: 1,
+        clearDisplay: true
+      })
+    } else {
+      const equals = operation === '='
+      const currentOperation = this.state.operation
+      const values = [...this.state.values]
+      try {
+        values[0] = eval(`${values[0]} ${currentOperation} ${values[1]}`)
+      //Vai pegar o primeiro valor, armazenar alguma operação e pegar o segundo valor
+      } catch (error) {
+        values[0] = this.state.values[0]
+      }
+      values[1] = 0
+
+      this.setState({
+        displayValue: values[0],//vai armazenar o valor no display
+        operation: equals ? null : operation,// se for um equals vou setar como null ou seja acabei de conclui minha operação com equals
+        //ou se for outra operação como + - etc, vai ser setado como operação atual;
+        current: equals ? 0 : 1, // se o usuario colocou equals vou continuar mexendo no indice 0 e se colocar outro valor colocar no indice 1;
+        clearDisplay: !equals, //se não for equals ele vai continuar mexendo no display;
+        values
+      })
+    }
   }
   addDigit(n) {
     //Se eu já recebi um '.' no display eu não posso ter um outro '.', se já tiver um '.'
